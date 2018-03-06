@@ -1,12 +1,10 @@
-using System;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Flexinets.Common;
 using Flexinets.Core.Database.Models;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
-using Newtonsoft.Json;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace CurrencyRateUpdaterFunction
 {
@@ -28,7 +26,6 @@ namespace CurrencyRateUpdaterFunction
             var client = new HttpClient();
             client.DefaultRequestHeaders.Add("Access-Token", Environment.GetEnvironmentVariable("Fortnox:accesstoken"));
             client.DefaultRequestHeaders.Add("Client-Secret", Environment.GetEnvironmentVariable("Fortnox:clientsecret"));
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
 
             foreach (var currency in rates)
             {
@@ -44,7 +41,7 @@ namespace CurrencyRateUpdaterFunction
                 };
 
                 log.Info($"Setting {currency.Key} rate to {1 / currency.Value}");
-                var response = await client.PutAsync(url, new StringContent(JsonConvert.SerializeObject(json), Encoding.UTF8, "application/json"));
+                var response = await client.PutAsJsonAsync(url, json);
                 log.Info($"Response from {currency.Key.ToUpperInvariant()} update: {response.StatusCode}");
             }
         }
